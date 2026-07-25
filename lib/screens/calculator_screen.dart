@@ -30,9 +30,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     setState(() {});
   }
 
-  double _parsePrice(String priceStr) {
-    // API returns "3.123,45" -> replace . with empty, then , with .
-    String normalized = priceStr.replaceAll('.', '').replaceAll(',', '.');
+  double _parseInput(String input) {
+    if (input.isEmpty) return 0.0;
+    // Handle both dot and comma as decimal separator
+    String normalized = input.replaceAll(',', '.');
     return double.tryParse(normalized) ?? 0.0;
   }
 
@@ -51,9 +52,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
           _selectedAsset ??= allAssets.first;
 
-          double amount = double.tryParse(_amountController.text) ?? 0;
-          double parsedPrice = _parsePrice(_selectedAsset!.selling);
-          double result = _isConvertingToTry ? amount * parsedPrice : amount / parsedPrice;
+          double amount = _parseInput(_amountController.text);
+          double parsedPrice = _selectedAsset!.sellingValue;
+          double result = _isConvertingToTry ? amount * parsedPrice : (parsedPrice > 0 ? amount / parsedPrice : 0);
 
           return ListView(
             padding: const EdgeInsets.all(24),
@@ -85,9 +86,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
-              _buildQuickCalc("10 Gram Altın", _parsePrice(provider.goldPrices.firstWhere((e) => e.code == "GA", orElse: () => provider.goldPrices.first).selling) * 10),
-              _buildQuickCalc("100 Dolar", _parsePrice(provider.currencies.firstWhere((e) => e.code == "USD", orElse: () => provider.currencies.first).selling) * 100),
-              _buildQuickCalc("5 Çeyrek Altın", _parsePrice(provider.goldPrices.firstWhere((e) => e.code == "C", orElse: () => provider.goldPrices.first).selling) * 5),
+              _buildQuickCalc("10 Gram Altın", (provider.goldPrices.firstWhere((e) => e.code == "GA", orElse: () => provider.goldPrices.first).sellingValue) * 10),
+              _buildQuickCalc("100 Dolar", (provider.currencies.firstWhere((e) => e.code == "USD", orElse: () => provider.currencies.first).sellingValue) * 100),
+              _buildQuickCalc("5 Çeyrek Altın", (provider.goldPrices.firstWhere((e) => e.code == "C", orElse: () => provider.goldPrices.first).sellingValue) * 5),
             ],
           );
         },

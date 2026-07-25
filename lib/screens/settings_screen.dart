@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/app_provider.dart';
+import '../version.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -36,7 +37,7 @@ class SettingsScreen extends StatelessWidget {
               _buildSectionHeader("Hakkında"),
               const ListTile(
                 title: Text("Versiyon"),
-                subtitle: Text("1.1.0"),
+                subtitle: Text(appVersion),
                 leading: Icon(Icons.info_outline),
               ),
             ],

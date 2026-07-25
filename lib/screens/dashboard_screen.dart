@@ -18,6 +18,31 @@ class DashboardScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Sarraf Gold"),
         actions: [
+          Consumer<AppProvider>(
+            builder: (context, provider, child) {
+              IconData themeIcon;
+              if (provider.themeMode == ThemeMode.light) {
+                themeIcon = Icons.wb_sunny_rounded;
+              } else if (provider.themeMode == ThemeMode.dark) {
+                themeIcon = Icons.nightlight_round;
+              } else {
+                themeIcon = Icons.brightness_auto_rounded;
+              }
+              return IconButton(
+                icon: Icon(themeIcon),
+                onPressed: () {
+                  if (provider.themeMode == ThemeMode.light) {
+                    provider.setThemeMode(ThemeMode.dark);
+                  } else if (provider.themeMode == ThemeMode.dark) {
+                    provider.setThemeMode(ThemeMode.system);
+                  } else {
+                    provider.setThemeMode(ThemeMode.light);
+                  }
+                },
+                tooltip: "Tema Değiştir",
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => Navigator.push(

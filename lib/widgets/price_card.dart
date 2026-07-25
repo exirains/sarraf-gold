@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../models/gold_price.dart';
 import '../services/app_provider.dart';
 
@@ -15,6 +16,8 @@ class PriceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final NumberFormat format = NumberFormat.decimalPattern('tr_TR');
+    
     Color trendColor = Colors.grey;
     IconData trendIcon = Icons.remove;
 
@@ -69,7 +72,7 @@ class PriceCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  "${gold.selling} ${gold.symbol}",
+                  "${format.format(gold.sellingValue)} ${gold.symbol}",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,

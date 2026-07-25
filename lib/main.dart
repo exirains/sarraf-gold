@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'screens/home_screen.dart';
+import 'screens/splash_screen.dart';
 import 'services/app_provider.dart';
 
 void main() async {
@@ -37,7 +37,7 @@ class GoldApp extends StatelessWidget {
             useMaterial3: true,
             brightness: Brightness.dark,
           ),
-          home: const HomeScreen(),
+          home: const SplashScreen(),
         );
       },
     );
