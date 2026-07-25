@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'dashboard_screen.dart';
 import 'gold_screen.dart';
 import 'currency_screen.dart';
+import 'calculator_screen.dart';
 import 'contact_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,8 +16,10 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
+    const DashboardScreen(),
     const GoldScreen(),
     const CurrencyScreen(),
+    const CalculatorScreen(),
     const ContactScreen(),
   ];
 
@@ -33,8 +37,13 @@ class _HomeScreenState extends State<HomeScreen> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         selectedItemColor: Colors.amber[800],
+        unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard_rounded),
+            label: 'Panel',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.home_rounded),
             label: 'Altın',
@@ -42,6 +51,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.attach_money_rounded),
             label: 'Döviz',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calculate_rounded),
+            label: 'Hesapla',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.contact_support_rounded),

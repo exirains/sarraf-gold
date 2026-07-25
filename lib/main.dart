@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'screens/home_screen.dart';
+import 'services/app_provider.dart';
 
-void main() {
-  runApp(const GoldApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('tr', null);
+  
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => AppProvider(),
+      child: const GoldApp(),
+    ),
+  );
 }
 
 class GoldApp extends StatelessWidget {
@@ -10,14 +21,25 @@ class GoldApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: "Sarraf Gold",
-      theme: ThemeData(
-        colorSchemeSeed: Colors.amber,
-        useMaterial3: true,
-      ),
-      home: const HomeScreen(),
+    return Consumer<AppProvider>(
+      builder: (context, provider, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: "Sarraf Gold",
+          themeMode: provider.themeMode,
+          theme: ThemeData(
+            colorSchemeSeed: Colors.amber,
+            useMaterial3: true,
+            brightness: Brightness.light,
+          ),
+          darkTheme: ThemeData(
+            colorSchemeSeed: Colors.amber,
+            useMaterial3: true,
+            brightness: Brightness.dark,
+          ),
+          home: const HomeScreen(),
+        );
+      },
     );
   }
 }

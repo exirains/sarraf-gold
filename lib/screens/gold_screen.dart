@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import '../services/market_api.dart';
+import 'package:provider/provider.dart';
+import '../services/app_provider.dart';
 import '../services/gold_names.dart';
-import '../models/gold_price.dart';
-import '../widgets/header_card.dart';
 import '../widgets/price_card.dart';
 import '../widgets/loading_view.dart';
-import '../widgets/error_view.dart';
 import '../widgets/category_icon.dart';
 
 class GoldScreen extends StatefulWidget {
@@ -17,87 +14,52 @@ class GoldScreen extends StatefulWidget {
 }
 
 class _GoldScreenState extends State<GoldScreen> {
-  late Future<List<GoldPrice>> goldPrices;
-  DateTime lastUpdate = DateTime.now();
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPrices();
-  }
-
-  void _loadPrices() {
-    setState(() {
-      goldPrices = MarketApi.fetchGoldPrices().then((data) {
-        lastUpdate = DateTime.now();
-        return data.entries.map((entry) {
-          return GoldPrice.fromJson(
-            entry.key,
-            GoldNames.getName(entry.key),
-            entry.value,
-          );
-        }).toList();
-      });
-    });
-  }
+  String _searchQuery = "";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Altın Piyasası"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadPrices,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: TextField(
+              onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
+              decoration: InputDecoration(
+                hintText: "Altın türü ara...",
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
           ),
-        ],
+        ),
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _loadPrices();
-          await goldPrices;
-        },
-        child: FutureBuilder<List<GoldPrice>>(
-          future: goldPrices,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const LoadingView(emoji: "🪙");
-            }
+      body: Consumer<AppProvider>(
+        builder: (context, provider, child) {
+          if (provider.isLoading && provider.goldPrices.isEmpty) {
+            return const LoadingView(emoji: "🪙");
+          }
 
-            if (snapshot.hasError) {
-              return ErrorView(
-                error: snapshot.error.toString(),
-                onRetry: _loadPrices,
-              );
-            }
+          final filteredPrices = provider.goldPrices.where((p) {
+            return p.name.toLowerCase().contains(_searchQuery) ||
+                p.code.toLowerCase().contains(_searchQuery);
+          }).toList();
 
-            final prices = snapshot.data!;
-
-            return ListView.builder(
+          return RefreshIndicator(
+            onRefresh: provider.refreshAll,
+            child: ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: prices.length + 2,
+              itemCount: filteredPrices.length,
               itemBuilder: (context, index) {
-                if (index == 0) {
-                  return const Padding(
-                    padding: EdgeInsets.only(bottom: 16),
-                    child: HeaderCard(emoji: "🪙"),
-                  );
-                }
-
-                if (index == prices.length + 1) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Center(
-                      child: Text(
-                        "Son güncelleme: ${DateFormat("HH:mm:ss").format(lastUpdate)}",
-                        style: const TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                    ),
-                  );
-                }
-
-                final gold = prices[index - 1];
+                final gold = filteredPrices[index];
                 return PriceCard(
                   gold: gold,
                   leadingIcon: CategoryIcon(
@@ -106,9 +68,9 @@ class _GoldScreenState extends State<GoldScreen> {
                   ),
                 );
               },
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
