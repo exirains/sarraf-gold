@@ -1,0 +1,24 @@
+{
+  "name": "gold_tracker",
+  "version": "1.0.0",
+  "description": "Flutter app that shows live prices of gold and currency.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/exirains/sarraf-gold.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/exirains/sarraf-gold/issues"
+  },
+  "homepage": "https://github.com/exirains/sarraf-gold#readme"
+}
