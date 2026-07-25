@@ -7,6 +7,7 @@ import '../widgets/header_card.dart';
 import '../widgets/price_card.dart';
 import '../widgets/loading_view.dart';
 import '../widgets/error_view.dart';
+import '../widgets/category_icon.dart';
 
 class CurrencyScreen extends StatefulWidget {
   const CurrencyScreen({super.key});
@@ -32,7 +33,7 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
         return data.entries.map((entry) {
           return GoldPrice.fromJson(
             entry.key,
-            currencyNames[entry.key] ?? entry.key,
+            CurrencyNames.getName(entry.key),
             entry.value,
           );
         }).toList();
@@ -61,7 +62,10 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
           future: currencies,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const LoadingView(message: "Kurlar güncelleniyor...");
+              return const LoadingView(
+                message: "Kurlar güncelleniyor...",
+                emoji: "💵",
+              );
             }
 
             if (snapshot.hasError) {
@@ -80,7 +84,7 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
                 if (index == 0) {
                   return const Padding(
                     padding: EdgeInsets.only(bottom: 16),
-                    child: HeaderCard(),
+                    child: HeaderCard(emoji: "💵"),
                   );
                 }
 
@@ -96,7 +100,14 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
                   );
                 }
 
-                return PriceCard(gold: data[index - 1]);
+                final currency = data[index - 1];
+                return PriceCard(
+                  gold: currency,
+                  leadingIcon: CategoryIcon(
+                    category: 'currency',
+                    emoji: Text(CurrencyNames.getIcon(currency.code)),
+                  ),
+                );
               },
             );
           },

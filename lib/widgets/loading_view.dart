@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 class LoadingView extends StatelessWidget {
   final String message;
+  final String emoji;
 
   const LoadingView({
     super.key,
     this.message = "Fiyatlar güncelleniyor...",
+    this.emoji = "🪙",
   });
 
   @override
@@ -14,7 +16,7 @@ class LoadingView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text("🪙", style: TextStyle(fontSize: 40)),
+          Text(emoji, style: const TextStyle(fontSize: 40)),
           const SizedBox(height: 16),
           const CircularProgressIndicator(),
           const SizedBox(height: 8),

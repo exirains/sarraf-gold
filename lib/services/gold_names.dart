@@ -41,10 +41,22 @@ class GoldNames {
   };
 
 
-  static String getName(String code){
-
+  static String getName(String code) {
     return names[code] ?? code;
-
   }
 
+  static String getCategory(String code) {
+    if (code == "14" || code == "18" || code == "22") return "karat";
+    if (code == "BSL") return "stack_5";
+    if (code == "IKB") return "stack_2_5";
+    if (code == "GAG") return "silver";
+    if (code == "XAUXAG") return "ratio";
+    if (code == "C" || code == "Y" || code == "T" || code == "CMR" || code == "ATA" || code == "GR" || code == "RA" || code == "HA") return "coin";
+    return "pure_gold";
+  }
+
+  static String getIcon(String code) {
+    if (code == "GAG") return "🥈"; // Silver
+    return "🟡"; // Gold
+  }
 }

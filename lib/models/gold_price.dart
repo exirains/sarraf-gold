@@ -5,6 +5,7 @@ class GoldPrice {
   final String selling;
   final String change;
   final String direction; // 'moneyUp', 'moneyDown', 'moneyNone'
+  final String symbol;
 
   GoldPrice({
     required this.code,
@@ -13,6 +14,7 @@ class GoldPrice {
     required this.selling,
     required this.change,
     required this.direction,
+    required this.symbol,
   });
 
   factory GoldPrice.fromJson(String code, String name, Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class GoldPrice {
       selling: json['satis'] ?? '0.00',
       change: json['degisim'] ?? '0.00',
       direction: json['yon'] ?? 'moneyNone',
+      symbol: json['sembol'] ?? '₺',
     );
   }
 }

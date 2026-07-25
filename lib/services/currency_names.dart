@@ -1,9 +1,18 @@
-Map<String,String> currencyNames = {
+class CurrencyNames {
+  static const Map<String, String> names = {
+    "USD": "Dolar",
+    "EUR": "Euro",
+    "AED": "Dirhem",
+    "USDT": "Tether (USDT)",
+  };
 
-  "USD": "Dolar",
+  static const Map<String, String> icons = {
+    "USD": "🇺🇸",
+    "EUR": "🇪🇺",
+    "AED": "🇦🇪",
+    "USDT": "₮",
+  };
 
-  "EUR": "Euro",
-
-  "AED": "Dirhem",
-  "USDT": "Tether (USDT)",
-};
+  static String getName(String code) => names[code] ?? code;
+  static String getIcon(String code) => icons[code] ?? "💵";
+}

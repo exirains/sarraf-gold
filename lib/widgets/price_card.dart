@@ -3,8 +3,13 @@ import '../models/gold_price.dart';
 
 class PriceCard extends StatelessWidget {
   final GoldPrice gold;
+  final Widget leadingIcon;
 
-  const PriceCard({super.key, required this.gold});
+  const PriceCard({
+    super.key,
+    required this.gold,
+    required this.leadingIcon,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,17 +32,10 @@ class PriceCard extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: trendColor.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                trendIcon,
-                color: trendColor,
-                size: 20,
-              ),
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: Center(child: leadingIcon),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -51,13 +49,19 @@ class PriceCard extends StatelessWidget {
                       fontSize: 16,
                     ),
                   ),
-                  Text(
-                    "%${gold.change}",
-                    style: TextStyle(
-                      color: trendColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  Row(
+                    children: [
+                      Icon(trendIcon, color: trendColor, size: 14),
+                      const SizedBox(width: 4),
+                      Text(
+                        "%${gold.change}",
+                        style: TextStyle(
+                          color: trendColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -65,9 +69,9 @@ class PriceCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                _PriceRow(label: "Alış", value: gold.buying),
+                _PriceRow(label: "Alış", value: gold.buying, symbol: gold.symbol),
                 const SizedBox(height: 4),
-                _PriceRow(label: "Satış", value: gold.selling),
+                _PriceRow(label: "Satış", value: gold.selling, symbol: gold.symbol),
               ],
             ),
           ],
@@ -80,8 +84,13 @@ class PriceCard extends StatelessWidget {
 class _PriceRow extends StatelessWidget {
   final String label;
   final String value;
+  final String symbol;
 
-  const _PriceRow({required this.label, required this.value});
+  const _PriceRow({
+    required this.label,
+    required this.value,
+    required this.symbol,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +101,7 @@ class _PriceRow extends StatelessWidget {
           style: const TextStyle(fontSize: 12, color: Colors.grey),
         ),
         Text(
-          "$value ₺",
+          "$value $symbol",
           style: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 14,

@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class HeaderCard extends StatelessWidget {
-  const HeaderCard({super.key});
+  final String emoji;
+
+  const HeaderCard({
+    super.key,
+    this.emoji = "🪙",
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +24,9 @@ class HeaderCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Text(
-                  "🪙",
-                  style: TextStyle(fontSize: 24),
+                Text(
+                  emoji,
+                  style: const TextStyle(fontSize: 24),
                 ),
                 const SizedBox(width: 8),
                 Text(

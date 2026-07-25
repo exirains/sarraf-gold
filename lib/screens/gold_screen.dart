@@ -7,6 +7,7 @@ import '../widgets/header_card.dart';
 import '../widgets/price_card.dart';
 import '../widgets/loading_view.dart';
 import '../widgets/error_view.dart';
+import '../widgets/category_icon.dart';
 
 class GoldScreen extends StatefulWidget {
   const GoldScreen({super.key});
@@ -61,7 +62,7 @@ class _GoldScreenState extends State<GoldScreen> {
           future: goldPrices,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const LoadingView();
+              return const LoadingView(emoji: "🪙");
             }
 
             if (snapshot.hasError) {
@@ -80,7 +81,7 @@ class _GoldScreenState extends State<GoldScreen> {
                 if (index == 0) {
                   return const Padding(
                     padding: EdgeInsets.only(bottom: 16),
-                    child: HeaderCard(),
+                    child: HeaderCard(emoji: "🪙"),
                   );
                 }
 
@@ -96,7 +97,14 @@ class _GoldScreenState extends State<GoldScreen> {
                   );
                 }
 
-                return PriceCard(gold: prices[index - 1]);
+                final gold = prices[index - 1];
+                return PriceCard(
+                  gold: gold,
+                  leadingIcon: CategoryIcon(
+                    category: GoldNames.getCategory(gold.code),
+                    code: Text(gold.code),
+                  ),
+                );
               },
             );
           },
