@@ -20,10 +20,10 @@ class UpdateInfo {
 
   factory UpdateInfo.fromJson(Map<String, dynamic> json) {
     return UpdateInfo(
-      version: json["version"] as String,
-      apkUrl: json["apk_url"] ?? "",
+      version: json["version"]?.toString() ?? "0.0.0",
+      apkUrl: json["apk_url"]?.toString() ?? "",
       notes: List<String>.from(json["notes"] ?? []),
-      appName: json["app_name"] ?? "Sarraf Gold",
+      appName: json["app_name"]?.toString() ?? "Sarraf Gold",
       buildNumber: json["build_number"] ?? 1,
     );
   }
@@ -35,63 +35,132 @@ class UpdateService {
   static Future<void> initLocalVersion() async {
     try {
       final String jsonStr = await rootBundle.loadString('update.json');
+
       final data = jsonDecode(jsonStr);
+
       localInfo = UpdateInfo.fromJson(data);
-      debugPrint("Local Version Loaded: ${localInfo?.version}");
+
+      debugPrint(
+        "Local Version Loaded: ${localInfo?.version}",
+      );
     } catch (e) {
-      debugPrint("Error loading local version from assets: $e");
+      debugPrint(
+        "Error loading local version: $e",
+      );
     }
   }
 
+
   static Future<UpdateInfo?> checkUpdate() async {
-    // Ensure local version is loaded first to prevent race conditions
-    if (localInfo == null) await initLocalVersion();
-    
+
+    // Web does not need APK update checks
+    if (kIsWeb) {
+      debugPrint(
+        "Update check skipped: Running on Web",
+      );
+      return null;
+    }
+
+
+    if (localInfo == null) {
+      await initLocalVersion();
+    }
+
+
     try {
-      final timestamp = DateTime.now().microsecondsSinceEpoch;
-      final response = await http.get(
-        Uri.parse("https://raw.githubusercontent.com/exirains/sarraf-gold/main/update.json?cache=$timestamp"),
-        headers: {
-          "Cache-Control": "no-cache",
-          "Pragma": "no-cache",
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        },
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .get(
+        Uri.parse(
+          "https://raw.githubusercontent.com/exirains/sarraf-gold/main/update.json",
+        ),
+      )
+          .timeout(
+        const Duration(seconds: 10),
+      );
+
 
       if (response.statusCode != 200) {
-        debugPrint("Update check: Server error (${response.statusCode})");
+        debugPrint(
+          "Update check failed: ${response.statusCode}",
+        );
         return null;
       }
 
-      final data = jsonDecode(response.body);
-      final remoteInfo = UpdateInfo.fromJson(data);
-      
-      final currentVersion = localInfo?.version ?? "0.0.0";
-      debugPrint("Update check: Current v$currentVersion | Remote v${remoteInfo.version}");
 
-      if (_shouldUpdate(currentVersion, remoteInfo.version)) {
+      final data = jsonDecode(response.body);
+
+      final remoteInfo = UpdateInfo.fromJson(data);
+
+
+      final currentVersion =
+          localInfo?.version ?? "0.0.0";
+
+
+      debugPrint(
+        "Update check: Current v$currentVersion | Remote v${remoteInfo.version}",
+      );
+
+
+      if (_shouldUpdate(
+        currentVersion,
+        remoteInfo.version,
+      )) {
         return remoteInfo;
       }
+
     } catch (e) {
-      debugPrint("Update check: Network error - $e");
+
+      debugPrint(
+        "Update check error: $e",
+      );
+
     }
+
 
     return null;
   }
 
-  static bool _shouldUpdate(String local, String remote) {
-    try {
-      final localParts = local.split('.').map(int.parse).toList();
-      final remoteParts = remote.split('.').map(int.parse).toList();
 
-      for (var i = 0; i < remoteParts.length; i++) {
-        if (i >= localParts.length) return true;
-        if (remoteParts[i] > localParts[i]) return true;
-        if (remoteParts[i] < localParts[i]) return false;
+
+  static bool _shouldUpdate(
+      String local,
+      String remote,
+      ) {
+
+    try {
+
+      final localParts =
+      local.split('.').map(int.parse).toList();
+
+      final remoteParts =
+      remote.split('.').map(int.parse).toList();
+
+
+      for (int i = 0; i < remoteParts.length; i++) {
+
+        if (i >= localParts.length) {
+          return true;
+        }
+
+
+        if (remoteParts[i] > localParts[i]) {
+          return true;
+        }
+
+
+        if (remoteParts[i] < localParts[i]) {
+          return false;
+        }
+
       }
-    } catch (e) {
+
+    } catch (_) {
+
       return remote != local;
+
     }
+
+
     return false;
   }
 }
