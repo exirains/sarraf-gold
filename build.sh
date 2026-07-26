@@ -1,12 +1,14 @@
 #!/bin/bash
 set -e
 
-git clone https://github.com/flutter/flutter.git -b 3.44.8 --depth 1 $HOME/flutter
+if [ ! -d "$HOME/flutter" ]; then
+  git clone https://github.com/flutter/flutter.git -b 3.44.8 --depth 1 $HOME/flutter
+fi
 
 export PATH="$PATH:$HOME/flutter/bin"
 
 flutter config --enable-web
 
-flutter doctor
+flutter pub get
 
 flutter build web
