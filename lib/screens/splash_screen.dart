@@ -17,6 +17,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
+    UpdateService.initLocalVersion();
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -47,19 +48,26 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   void _showUpdateDialog(UpdateInfo update) {
+    // Format the list of notes into a string with bullet points
+    final String formattedNotes = update.notes.isEmpty 
+        ? "Yeni özellikler ve hata düzeltmeleri." 
+        : update.notes.map((note) => "• $note").join("\n");
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: const Text("Yeni Versiyon Mevcut"),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Versiyon: ${update.version}"),
-            const SizedBox(height: 8),
-            const Text("Yenilikler:", style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(update.notes),
+            Text("Versiyon: ${update.version}", style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            const Text("Yenilikler:", style: TextStyle(fontSize: 14, color: Colors.grey)),
+            const SizedBox(height: 4),
+            Text(formattedNotes, style: const TextStyle(fontSize: 14)),
           ],
         ),
         actions: [
@@ -72,11 +80,22 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           ),
           ElevatedButton(
             onPressed: () async {
-              final url = Uri.parse(update.apkUrl);
-              if (await canLaunchUrl(url)) {
-                await launchUrl(url, mode: LaunchMode.externalApplication);
+              try {
+                final url = Uri.parse(update.apkUrl);
+                // Directly try to launch. On some devices, canLaunchUrl returns false 
+                // even when it can actually launch due to strict OS checks.
+                await launchUrl(
+                  url, 
+                  mode: LaunchMode.externalApplication,
+                );
+              } catch (e) {
+                debugPrint("Could not launch update URL: $e");
               }
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.amber,
+              foregroundColor: Colors.white,
+            ),
             child: const Text("Güncelle"),
           ),
         ],

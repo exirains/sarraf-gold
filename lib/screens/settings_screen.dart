@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/app_provider.dart';
-import '../version.dart';
+import '../services/update_service.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -35,10 +35,10 @@ class SettingsScreen extends StatelessWidget {
               ),
               const Divider(),
               _buildSectionHeader("Hakkında"),
-              const ListTile(
-                title: Text("Versiyon"),
-                subtitle: Text(appVersion),
-                leading: Icon(Icons.info_outline),
+              ListTile(
+                title: const Text("Versiyon"),
+                subtitle: Text(UpdateService.localInfo?.version ?? '...'),
+                leading: const Icon(Icons.info_outline),
               ),
             ],
           );

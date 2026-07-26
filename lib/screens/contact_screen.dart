@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../version.dart';
+import '../services/update_service.dart';
 
 class ContactScreen extends StatelessWidget {
   const ContactScreen({super.key});
@@ -93,7 +93,7 @@ class ContactScreen extends StatelessWidget {
                     style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500),
                   ),
                   Text(
-                    "Versiyon $appVersion",
+                    "Versiyon ${UpdateService.localInfo?.version ?? '...'}",
                     style: TextStyle(color: Colors.grey[400], fontSize: 12),
                   ),
                 ],

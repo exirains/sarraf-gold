@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gold_tracker/main.dart';
+import 'package:sarraf_gold/main.dart';
 
 void main() {
   testWidgets('App loads smoke test', (WidgetTester tester) async {
