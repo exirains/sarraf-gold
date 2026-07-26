@@ -3,9 +3,7 @@
   "version": "1.3.2",
   "build_number": 14,
   "notes": [
-    "Fixed the not being able to connect to internet bug.",
-    "Added new animations",
-    "Fixed some performance bugs"
+    "Small fixes and improvements."
   ],
   "apk_url": "https://github.com/exirains/sarraf-gold/releases/latest/download/SarrafGold.apk"
 }
