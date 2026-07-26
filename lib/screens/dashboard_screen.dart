@@ -9,8 +9,24 @@ import '../services/gold_names.dart';
 import '../services/currency_names.dart';
 import 'settings_screen.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  bool _hasAnimated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // After the first frame, we mark it as animated
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() => _hasAnimated = true);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,49 +72,81 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Consumer<AppProvider>(
-        builder: (context, provider, child) {
-          final favorites = provider.favoritePrices.take(5).toList();
+      body: RepaintBoundary(
+        child: Consumer<AppProvider>(
+          builder: (context, provider, child) {
+            final favorites = provider.favoritePrices.take(5).toList();
 
-          return RefreshIndicator(
-            onRefresh: provider.refreshAll,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildHeader(provider),
-                const SizedBox(height: 20),
-                _buildQuickActions(context),
-                const SizedBox(height: 24),
-                if (favorites.isNotEmpty) ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Favorilerim (Üst 5)",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            return RefreshIndicator(
+              onRefresh: provider.refreshAll,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  _AnimatedEntry(
+                    delay: 0,
+                    shouldAnimate: !_hasAnimated,
+                    child: _buildHeader(provider),
+                  ),
+                  const SizedBox(height: 20),
+                  _AnimatedEntry(
+                    delay: 100,
+                    shouldAnimate: !_hasAnimated,
+                    child: _buildQuickActions(context, provider),
+                  ),
+                  const SizedBox(height: 24),
+                  if (favorites.isNotEmpty) ...[
+                    _AnimatedEntry(
+                      delay: 200,
+                      shouldAnimate: !_hasAnimated,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            "Favorilerim (Üst 5)",
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            "${favorites.length}/5",
+                            style: const TextStyle(color: Colors.grey, fontSize: 12),
+                          ),
+                        ],
                       ),
-                      Text(
-                        "${favorites.length}/5",
-                        style: const TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                    ],
+                    ),
+                    const SizedBox(height: 8),
+                    ...List.generate(favorites.length, (index) {
+                      return _AnimatedEntry(
+                        delay: 250 + (index * 50),
+                        shouldAnimate: !_hasAnimated,
+                        child: _buildPriceCard(favorites[index]),
+                      );
+                    }),
+                    const SizedBox(height: 16),
+                  ],
+                  _AnimatedEntry(
+                    delay: 400,
+                    shouldAnimate: !_hasAnimated,
+                    child: const Text(
+                      "Piyasa Özeti",
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                    ),
                   ),
                   const SizedBox(height: 8),
-                  ...favorites.map((price) => _buildPriceCard(price)),
-                  const SizedBox(height: 16),
+                  _AnimatedEntry(
+                    delay: 450,
+                    shouldAnimate: !_hasAnimated,
+                    child: _buildSummarySection(provider),
+                  ),
+                  const SizedBox(height: 24),
+                  _AnimatedEntry(
+                    delay: 500,
+                    shouldAnimate: !_hasAnimated,
+                    child: _buildLastUpdate(provider),
+                  ),
                 ],
-                const Text(
-                  "Piyasa Özeti",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                _buildSummarySection(provider),
-                const SizedBox(height: 24),
-                _buildLastUpdate(provider),
-              ],
-            ),
-          );
-        },
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -191,7 +239,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickActions(BuildContext context) {
+  Widget _buildQuickActions(BuildContext context, AppProvider provider) {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -200,27 +248,20 @@ class DashboardScreen extends StatelessWidget {
       mainAxisSpacing: 12,
       childAspectRatio: 2.2,
       children: [
-        _buildActionItem(context, "Altın", Icons.savings_rounded, Colors.amber, 1),
-        _buildActionItem(context, "Döviz", Icons.monetization_on_rounded, Colors.blue, 2),
-        _buildActionItem(context, "Hesapla", Icons.calculate_rounded, Colors.green, 3),
-        _buildActionItem(context, "İletişim", Icons.contact_support_rounded, Colors.purple, 4),
+        _buildActionItem(context, provider, "Altın", Icons.savings_rounded, Colors.amber, 1),
+        _buildActionItem(context, provider, "Döviz", Icons.monetization_on_rounded, Colors.blue, 2),
+        _buildActionItem(context, provider, "Hesapla", Icons.calculate_rounded, Colors.green, 3),
+        _buildActionItem(context, provider, "İletişim", Icons.contact_support_rounded, Colors.purple, 4),
       ],
     );
   }
 
-  Widget _buildActionItem(BuildContext context, String title, IconData icon, Color color, int index) {
-    // Note: We need a way to communicate tab change to HomeScreen, but for now we'll use a callback or just keep it simple.
-    // In this simplified Version 1.0, we'll assume the user is okay with these being static or use a workaround.
+  Widget _buildActionItem(BuildContext context, AppProvider provider, String title, IconData icon, Color color, int index) {
     return InkWell(
-      onTap: () {
-        // Workaround to switch tabs if HomeScreen is the parent. 
-        // A better way is using a TabController or Provider, but let's stick to simplest.
-        // For now, let's just show a snackbar or implement a notification.
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("$title sekmesine alt menüden gidebilirsiniz."), duration: const Duration(seconds: 1)),
-        );
-      },
-      child: Container(
+      onTap: () => provider.setSelectedIndex(index),
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
@@ -275,6 +316,39 @@ class DashboardScreen extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+class _AnimatedEntry extends StatelessWidget {
+  final Widget child;
+  final int delay;
+  final bool shouldAnimate;
+
+  const _AnimatedEntry({
+    required this.child, 
+    required this.delay,
+    this.shouldAnimate = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (!shouldAnimate) return child;
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 20 * (1 - value)),
+            child: child,
+          ),
+        );
+      },
+      child: child,
     );
   }
 }

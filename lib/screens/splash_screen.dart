@@ -13,16 +13,22 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1200),
     );
+    
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.8, curve: Curves.easeIn)),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
     );
 
     _controller.forward();
@@ -30,14 +36,12 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   Future<void> _handleStartup() async {
-    // 1. Ensure local version is loaded into memory
     await UpdateService.initLocalVersion();
-
-    // 2. Wait for at least the animation duration
-    await Future.delayed(const Duration(milliseconds: 1000));
+    
+    // Total splash time
+    await Future.delayed(const Duration(milliseconds: 1800));
 
     try {
-      // 3. Now safely check for updates
       final update = await UpdateService.checkUpdate();
       if (update != null && mounted) {
         _showUpdateDialog(update);
@@ -51,7 +55,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   void _showUpdateDialog(UpdateInfo update) {
-    // Format the list of notes into a string with bullet points
     final String formattedNotes = update.notes.isEmpty 
         ? "Yeni özellikler ve hata düzeltmeleri." 
         : update.notes.map((note) => "• $note").join("\n");
@@ -61,7 +64,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: const Text("Yeni Versiyon Mevcut"),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,12 +90,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             onPressed: () async {
               try {
                 final url = Uri.parse(update.apkUrl);
-                // Directly try to launch. On some devices, canLaunchUrl returns false 
-                // even when it can actually launch due to strict OS checks.
-                await launchUrl(
-                  url, 
-                  mode: LaunchMode.externalApplication,
-                );
+                await launchUrl(url, mode: LaunchMode.externalApplication);
               } catch (e) {
                 debugPrint("Could not launch update URL: $e");
               }
@@ -100,6 +98,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
               foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text("Güncelle"),
           ),
@@ -109,12 +108,30 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   void _navigateToHome() {
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    }
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          // Premium Zoom + Fade effect
+          var curve = Curves.easeInOutQuart;
+          var tween = Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: curve));
+          
+          return FadeTransition(
+            opacity: animation.drive(tween),
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 1.1, end: 1.0).animate(
+                CurvedAnimation(parent: animation, curve: curve),
+              ),
+              child: child,
+            ),
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 700),
+      ),
+    );
   }
 
   @override
@@ -130,46 +147,60 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       body: Center(
         child: FadeTransition(
           opacity: _fadeAnimation,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 20,
-                      spreadRadius: 5,
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 140,
+                  height: 140,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 30,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(25),
+                  child: Image.asset('assets/icon.png'),
+                ),
+                const SizedBox(height: 32),
+                const Text(
+                  "Sarraf Gold",
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 2,
+                    shadows: [
+                      Shadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    "CANLI ALTIN VE DÖVİZ",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
                     ),
-                  ],
+                  ),
                 ),
-                padding: const EdgeInsets.all(20),
-                child: Image.asset('assets/icon.png'),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                "Sarraf Gold",
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "Canlı Altın ve Döviz",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white.withValues(alpha: 0.8),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

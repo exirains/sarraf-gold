@@ -19,6 +19,7 @@ class AppProvider with ChangeNotifier {
   Timer? _refreshTimer;
   int _refreshIntervalMinutes = 0;
   FetchStatus _status = FetchStatus.offline;
+  int _selectedIndex = 0;
 
   List<GoldPrice> get goldPrices => _goldPrices;
   List<GoldPrice> get currencies => _currencies;
@@ -28,9 +29,15 @@ class AppProvider with ChangeNotifier {
   DateTime? get lastUpdate => _lastUpdate;
   int get refreshIntervalMinutes => _refreshIntervalMinutes;
   FetchStatus get status => _status;
+  int get selectedIndex => _selectedIndex;
 
   AppProvider() {
     _initialize();
+  }
+
+  void setSelectedIndex(int index) {
+    _selectedIndex = index;
+    notifyListeners();
   }
 
   Future<void> _initialize() async {

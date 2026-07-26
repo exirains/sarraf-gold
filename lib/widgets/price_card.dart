@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/gold_price.dart';
 import '../services/app_provider.dart';
 
-class PriceCard extends StatelessWidget {
+class PriceCard extends StatefulWidget {
   final GoldPrice gold;
   final Widget leadingIcon;
 
@@ -15,97 +15,118 @@ class PriceCard extends StatelessWidget {
   });
 
   @override
+  State<PriceCard> createState() => _PriceCardState();
+}
+
+class _PriceCardState extends State<PriceCard> {
+  double _scale = 1.0;
+
+  @override
   Widget build(BuildContext context) {
     final NumberFormat format = NumberFormat.decimalPattern('tr_TR');
     
     Color trendColor = Colors.grey;
     IconData trendIcon = Icons.remove;
 
-    if (gold.direction == 'moneyUp') {
+    if (widget.gold.direction == 'moneyUp') {
       trendColor = Colors.green;
       trendIcon = Icons.arrow_upward;
-    } else if (gold.direction == 'moneyDown') {
+    } else if (widget.gold.direction == 'moneyDown') {
       trendColor = Colors.red;
       trendIcon = Icons.arrow_downward;
     }
 
-    return Card(
-      elevation: 0,
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.grey.withValues(alpha: 0.1)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: trendColor.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(child: leadingIcon),
+    return RepaintBoundary(
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _scale = 0.98),
+        onTapUp: (_) => setState(() => _scale = 1.0),
+        onTapCancel: () => setState(() => _scale = 1.0),
+        onTap: () {
+          // Future: Navigation to details
+        },
+        child: AnimatedScale(
+          scale: _scale,
+          duration: const Duration(milliseconds: 100),
+          child: Card(
+            elevation: 0,
+            margin: const EdgeInsets.only(bottom: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: Colors.grey.withValues(alpha: 0.1)),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
                 children: [
-                  Text(
-                    gold.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: trendColor.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    child: Center(child: widget.leadingIcon),
                   ),
-                  const SizedBox(height: 4),
-                  _buildChangeBadge(trendColor, trendIcon),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.gold.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 15,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        _buildChangeBadge(trendColor, trendIcon, widget.gold.change, widget.gold.direction),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        "${format.format(widget.gold.sellingValue)} ${widget.gold.symbol}",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 18,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      Text(
+                        "Satış Fiyatı",
+                        style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 8),
+                  Consumer<AppProvider>(
+                    builder: (context, provider, child) {
+                      final isFav = provider.favorites.contains(widget.gold.code);
+                      return IconButton(
+                        icon: Icon(
+                          isFav ? Icons.star_rounded : Icons.star_outline_rounded,
+                          color: isFav ? Colors.amber : Colors.grey.withValues(alpha: 0.4),
+                          size: 22,
+                        ),
+                        onPressed: () => provider.toggleFavorite(widget.gold.code),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  "${format.format(gold.sellingValue)} ${gold.symbol}",
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                Text(
-                  "Satış Fiyatı",
-                  style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
-                ),
-              ],
-            ),
-            const SizedBox(width: 8),
-            Consumer<AppProvider>(
-              builder: (context, provider, child) {
-                final isFav = provider.favorites.contains(gold.code);
-                return IconButton(
-                  icon: Icon(
-                    isFav ? Icons.star_rounded : Icons.star_outline_rounded,
-                    color: isFav ? Colors.amber : Colors.grey.withValues(alpha: 0.4),
-                    size: 22,
-                  ),
-                  onPressed: () => provider.toggleFavorite(gold.code),
-                );
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildChangeBadge(Color color, IconData icon) {
+  Widget _buildChangeBadge(Color color, IconData icon, String change, String direction) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
@@ -118,7 +139,7 @@ class PriceCard extends StatelessWidget {
           Icon(icon, color: color, size: 10),
           const SizedBox(width: 2),
           Text(
-            "${gold.direction == 'moneyUp' ? '+' : ''}${gold.change}%",
+            "${direction == 'moneyUp' ? '+' : ''}$change%",
             style: TextStyle(
               color: color,
               fontSize: 10,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'screens/splash_screen.dart';
 import 'services/app_provider.dart';
 
@@ -31,11 +32,15 @@ class GoldApp extends StatelessWidget {
             colorSchemeSeed: Colors.amber,
             useMaterial3: true,
             brightness: Brightness.light,
+            textTheme: GoogleFonts.quicksandTextTheme(ThemeData.light().textTheme),
+            fontFamily: GoogleFonts.quicksand().fontFamily,
           ),
           darkTheme: ThemeData(
             colorSchemeSeed: Colors.amber,
             useMaterial3: true,
             brightness: Brightness.dark,
+            textTheme: GoogleFonts.quicksandTextTheme(ThemeData.dark().textTheme),
+            fontFamily: GoogleFonts.quicksand().fontFamily,
           ),
           home: const SplashScreen(),
         );
