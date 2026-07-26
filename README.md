@@ -13,6 +13,36 @@ Sarraf Gold is a Flutter application offering a straightforward interface for us
 - Automatic checks for new APK updates
 - Support for Android and Web
 
+## Screenshots
+
+### Main Panel
+
+![Main Panel](screenshots/main_panel.png)
+
+### Gold Prices
+
+![Gold Prices](screenshots/gold_panel.png)
+
+### Currency Exchange
+
+![Currency Exchange](screenshots/exchange_panel.png)
+
+### Calculator
+
+![Calculator](screenshots/calculator_panel.png)
+
+### Dark Mode
+
+![Dark Mode](screenshots/main_panel_dark.png)
+
+### Contact
+
+![Contact](screenshots/contact_panel.png)
+
+### Splash Screen
+
+![Splash Screen](screenshots/splash_screen.png)
+
 ## Languages & technologies Used
 
 - Flutter
