@@ -1,11 +1,9 @@
 {
   "app_name": "Sarraf Gold",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "build_number": 13,
   "notes": [
-    "Test update system",
-    "New dashboard improvements",
-    "Bug fixes"
+    "Update system is now fully functional and working."
   ],
   "apk_url": "https://github.com/exirains/sarraf-gold/releases/latest/download/SarrafGold.apk"
 }

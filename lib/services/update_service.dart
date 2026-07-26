@@ -44,12 +44,17 @@ class UpdateService {
   }
 
   static Future<UpdateInfo?> checkUpdate() async {
+    // Ensure local version is loaded first to prevent race conditions
     if (localInfo == null) await initLocalVersion();
     
     try {
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final timestamp = DateTime.now().microsecondsSinceEpoch;
       final response = await http.get(
-        Uri.parse("https://raw.githubusercontent.com/exirains/sarraf-gold/main/update.json?t=$timestamp"),
+        Uri.parse("https://raw.githubusercontent.com/exirains/sarraf-gold/main/update.json?cache=$timestamp"),
+        headers: {
+          "Cache-Control": "no-cache",
+          "Pragma": "no-cache",
+        },
       ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode != 200) {
@@ -61,7 +66,7 @@ class UpdateService {
       final remoteInfo = UpdateInfo.fromJson(data);
       
       final currentVersion = localInfo?.version ?? "0.0.0";
-      debugPrint("Update check: Local v$currentVersion | Remote v${remoteInfo.version}");
+      debugPrint("Update check: Current v$currentVersion | Remote v${remoteInfo.version}");
 
       if (_shouldUpdate(currentVersion, remoteInfo.version)) {
         return remoteInfo;

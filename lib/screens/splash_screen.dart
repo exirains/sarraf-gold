@@ -17,7 +17,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    UpdateService.initLocalVersion();
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -31,10 +30,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   Future<void> _handleStartup() async {
-    // Wait for at least the animation duration
-    await Future.delayed(const Duration(milliseconds: 2000));
+    // 1. Ensure local version is loaded into memory
+    await UpdateService.initLocalVersion();
+
+    // 2. Wait for at least the animation duration
+    await Future.delayed(const Duration(milliseconds: 1000));
 
     try {
+      // 3. Now safely check for updates
       final update = await UpdateService.checkUpdate();
       if (update != null && mounted) {
         _showUpdateDialog(update);
@@ -63,7 +66,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Versiyon: ${update.version}", style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text("Mevcut Versiyon: ${UpdateService.localInfo?.version ?? '...'}", style: const TextStyle(fontSize: 13)),
+            const SizedBox(height: 4),
+            Text("Yeni Versiyon: ${update.version}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.amber)),
             const SizedBox(height: 12),
             const Text("Yenilikler:", style: TextStyle(fontSize: 14, color: Colors.grey)),
             const SizedBox(height: 4),
