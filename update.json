@@ -1,0 +1,9 @@
+{
+  "version": "1.2.0",
+  "notes": [
+    "Initial Sarraf Gold release",
+    "Gold and currency tracking",
+    "Offline mode added"
+  ],
+  "apk_url": "https://github.com/exirains/sarraf-gold/releases/download/v1.2.0/SarrafGold.apk"
+}

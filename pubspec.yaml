@@ -1,5 +1,5 @@
-name: gold_tracker
-description: "A live gold price tracking app"
+name: sarraf_gold
+description: "Sarraf Gold - Live Gold and Currency Prices"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -37,6 +37,7 @@ dependencies:
   fl_chart: ^0.70.2
   provider: ^6.1.2
   font_awesome_flutter: ^11.0.0
+  package_info_plus: ^8.0.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

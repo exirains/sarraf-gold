@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../services/update_service.dart';
 import 'home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -24,16 +26,71 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     );
 
     _controller.forward();
+    _handleStartup();
+  }
 
-    // Navigate to Home after 2.5 seconds
-    Future.delayed(const Duration(milliseconds: 2500), () {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
+  Future<void> _handleStartup() async {
+    // Wait for at least the animation duration
+    await Future.delayed(const Duration(milliseconds: 2000));
+
+    try {
+      final update = await UpdateService.checkUpdate();
+      if (update != null && mounted) {
+        _showUpdateDialog(update);
+      } else {
+        _navigateToHome();
       }
-    });
+    } catch (e) {
+      debugPrint("Update check failed: $e");
+      _navigateToHome();
+    }
+  }
+
+  void _showUpdateDialog(UpdateInfo update) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text("Yeni Versiyon Mevcut"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Versiyon: ${update.version}"),
+            const SizedBox(height: 8),
+            const Text("Yenilikler:", style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(update.notes),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _navigateToHome();
+            },
+            child: const Text("Daha Sonra"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final url = Uri.parse(update.apkUrl);
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url, mode: LaunchMode.externalApplication);
+              }
+            },
+            child: const Text("Güncelle"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToHome() {
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    }
   }
 
   @override
