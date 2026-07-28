@@ -1,8 +1,18 @@
 {
-  "version": "1.3.3",
+  "app_name": "Sarraf Gold",
+  "version": "1.4.0",
+  "build_number": 14,
   "notes": [
-    "Improved dashboard",
-    "Bug fixes"
+    "Membership system with Supabase integration",
+    "Profile picture (avatar) upload support",
+    "Immediate profile sync after login/signup/upload",
+    "Loyalty points system with history support",
+    "Optimized dashboard with floating marketing reminders",
+    "Improved Android back button (Home First, then Exit)",
+    "Multi-purpose gold and currency calculator",
+    "Full multi-language support (TR, EN, FA) with translated labels",
+    "Enhanced input validation and form security",
+    "Fixed avatar storage and data sync issues"
   ],
-  "apk_url": "https://github.com/exirains/sarraf-gold/releases/download/v1.3.3/SarrafGold.apk"
+  "apk_url": "https://github.com/exirains/sarraf-gold/releases/latest/download/SarrafGold.apk"
 }

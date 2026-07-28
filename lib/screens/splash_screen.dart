@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/update_service.dart';
+import '../services/app_provider.dart';
+import '../services/localization_service.dart';
 import 'home_screen.dart';
+import 'language_selection_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -36,25 +40,59 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   Future<void> _handleStartup() async {
+    // 1. Ensure local version is loaded into memory
     await UpdateService.initLocalVersion();
-    
-    // Total splash time
-    await Future.delayed(const Duration(milliseconds: 1800));
+
+    // 2. Wait for at least the animation duration
+    await Future.delayed(const Duration(milliseconds: 1500));
 
     try {
+      // 3. Now safely check for updates
       final update = await UpdateService.checkUpdate();
       if (update != null && mounted) {
         _showUpdateDialog(update);
       } else {
-        _navigateToHome();
+        _proceedToNextScreen();
       }
     } catch (e) {
       debugPrint("Update check failed: $e");
-      _navigateToHome();
+      _proceedToNextScreen();
     }
   }
 
+  void _proceedToNextScreen() {
+    if (!mounted) return;
+    final provider = Provider.of<AppProvider>(context, listen: false);
+    
+    Widget nextScreen = provider.languageSelected 
+        ? const HomeScreen() 
+        : const LanguageSelectionScreen();
+
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => nextScreen,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          var curve = Curves.easeInOutQuart;
+          var tween = Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: curve));
+          
+          return FadeTransition(
+            opacity: animation.drive(tween),
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 1.1, end: 1.0).animate(
+                CurvedAnimation(parent: animation, curve: curve),
+              ),
+              child: child,
+            ),
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 700),
+      ),
+    );
+  }
+
   void _showUpdateDialog(UpdateInfo update) {
+    // Format the list of notes into a string with bullet points
     final String formattedNotes = update.notes.isEmpty 
         ? "Yeni özellikler ve hata düzeltmeleri." 
         : update.notes.map((note) => "• $note").join("\n");
@@ -82,7 +120,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              _navigateToHome();
+              _proceedToNextScreen();
             },
             child: const Text("Daha Sonra"),
           ),
@@ -103,33 +141,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             child: const Text("Güncelle"),
           ),
         ],
-      ),
-    );
-  }
-
-  void _navigateToHome() {
-    if (!mounted) return;
-
-    Navigator.pushReplacement(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          // Premium Zoom + Fade effect
-          var curve = Curves.easeInOutQuart;
-          var tween = Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: curve));
-          
-          return FadeTransition(
-            opacity: animation.drive(tween),
-            child: ScaleTransition(
-              scale: Tween<double>(begin: 1.1, end: 1.0).animate(
-                CurvedAnimation(parent: animation, curve: curve),
-              ),
-              child: child,
-            ),
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 700),
       ),
     );
   }
@@ -170,9 +181,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   child: Image.asset('assets/icon.png'),
                 ),
                 const SizedBox(height: 32),
-                const Text(
-                  "Sarraf Gold",
-                  style: TextStyle(
+                Text(
+                  LocalizationService.translate(context, 'app_name'),
+                  style: const TextStyle(
                     fontSize: 36,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -189,9 +200,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
-                    "CANLI ALTIN VE DÖVİZ",
-                    style: TextStyle(
+                  child: Text(
+                    LocalizationService.translate(context, 'reliable_market').toUpperCase(),
+                    style: const TextStyle(
                       fontSize: 12,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

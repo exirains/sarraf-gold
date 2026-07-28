@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/app_provider.dart';
 import '../services/gold_names.dart';
+import '../services/localization_service.dart';
 import '../widgets/price_card.dart';
 import '../widgets/loading_view.dart';
 import '../widgets/category_icon.dart';
@@ -20,7 +21,7 @@ class _GoldScreenState extends State<GoldScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Altın Piyasası"),
+        title: Text(LocalizationService.translate(context, 'gold')),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: Padding(
@@ -28,7 +29,7 @@ class _GoldScreenState extends State<GoldScreen> {
             child: TextField(
               onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
               decoration: InputDecoration(
-                hintText: "Altın türü ara...",
+                hintText: LocalizationService.translate(context, 'search_gold'),
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
                 fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),

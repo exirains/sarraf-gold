@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'localization_service.dart';
+
 class CurrencyNames {
   static const Map<String, String> names = {
     "USD": "Dolar",
@@ -13,6 +16,9 @@ class CurrencyNames {
     "USDT": "₮",
   };
 
-  static String getName(String code) => names[code] ?? code;
+  static String getName(BuildContext context, String code) {
+    return LocalizationService.translate(context, 'code_$code');
+  }
+
   static String getIcon(String code) => icons[code] ?? "💵";
 }

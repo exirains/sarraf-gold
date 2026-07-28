@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../models/gold_price.dart';
 import '../services/app_provider.dart';
+import '../services/gold_names.dart';
+import '../services/currency_names.dart';
 
 class PriceCard extends StatefulWidget {
   final GoldPrice gold;
@@ -25,6 +27,12 @@ class _PriceCardState extends State<PriceCard> {
   Widget build(BuildContext context) {
     final NumberFormat format = NumberFormat.decimalPattern('tr_TR');
     
+    // Dynamic localized name
+    final isGold = GoldNames.names.containsKey(widget.gold.code);
+    final String localizedName = isGold 
+        ? GoldNames.getName(context, widget.gold.code)
+        : CurrencyNames.getName(context, widget.gold.code);
+
     Color trendColor = Colors.grey;
     IconData trendIcon = Icons.remove;
 
@@ -73,7 +81,7 @@ class _PriceCardState extends State<PriceCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.gold.name,
+                          localizedName,
                           style: const TextStyle(
                             fontWeight: FontWeight.w800,
                             fontSize: 15,

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../services/update_service.dart';
+import '../services/localization_service.dart';
 
 class ContactScreen extends StatelessWidget {
   const ContactScreen({super.key});
@@ -26,7 +27,7 @@ class ContactScreen extends StatelessWidget {
   void _copyToClipboard(BuildContext context, String text) {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Panoya kopyalandı!')),
+      SnackBar(content: Text(LocalizationService.translate(context, 'copy_clipboard'))),
     );
   }
 
@@ -34,44 +35,44 @@ class ContactScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Kurumsal"),
+        title: Text(LocalizationService.translate(context, 'corporate')),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(context),
             const SizedBox(height: 32),
-            const Text(
-              "Hizmetlerimiz",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              LocalizationService.translate(context, 'services'),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 12),
-            _buildServices(),
+            _buildServices(context),
             const SizedBox(height: 32),
-            const Text(
-              "İletişim Kanalları",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              LocalizationService.translate(context, 'contact_channels'),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 12),
             _ContactItem(
               icon: FontAwesomeIcons.telegram,
-              title: "Telegram Grubu",
-              subtitle: "Canlı sinyaller ve duyurular",
+              title: LocalizationService.translate(context, 'telegram_group'),
+              subtitle: LocalizationService.translate(context, 'telegram_subtitle'),
               onTap: () => _launchUrl(context, telegramUrl),
               iconColor: Colors.blue,
             ),
             _ContactItem(
               icon: FontAwesomeIcons.whatsapp,
-              title: "WhatsApp",
-              subtitle: "Hızlı destek hattı",
+              title: LocalizationService.translate(context, 'whatsapp'),
+              subtitle: LocalizationService.translate(context, 'whatsapp_subtitle'),
               onTap: () => _launchUrl(context, "https://wa.me/${phoneNumber.replaceAll('+', '')}"),
               iconColor: Colors.green,
             ),
             _ContactItem(
               icon: Icons.phone_rounded,
-              title: "Telefon",
+              title: LocalizationService.translate(context, 'phone_label'),
               subtitle: phoneNumber,
               onTap: () => _launchUrl(context, "tel:$phoneNumber"),
               onLongPress: () => _copyToClipboard(context, phoneNumber),
@@ -79,7 +80,7 @@ class ContactScreen extends StatelessWidget {
             ),
             _ContactItem(
               icon: Icons.location_on_rounded,
-              title: "Adres",
+              title: LocalizationService.translate(context, 'address'),
               subtitle: address,
               onTap: () => _launchUrl(context, googleMapsUrl),
               iconColor: Colors.redAccent,
@@ -88,12 +89,12 @@ class ContactScreen extends StatelessWidget {
             Center(
               child: Column(
                 children: [
-                  const Text(
-                    "Sarraf Gold © 2026",
-                    style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500),
+                  Text(
+                    "${UpdateService.localInfo?.appName ?? 'Sarraf Gold'} © 2026",
+                    style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w600),
                   ),
                   Text(
-                    "Versiyon ${UpdateService.localInfo?.version ?? '...'}",
+                    "${LocalizationService.translate(context, 'version')} ${UpdateService.localInfo?.version ?? '...'}",
                     style: TextStyle(color: Colors.grey[400], fontSize: 12),
                   ),
                 ],
@@ -105,7 +106,7 @@ class ContactScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -124,32 +125,32 @@ class ContactScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: const Column(
+      child: Column(
         children: [
-          CircleAvatar(
+          const CircleAvatar(
             radius: 40,
             backgroundColor: Colors.white,
             child: Icon(Icons.account_balance_rounded, size: 40, color: Colors.amber),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
-            "Sarraf Gold",
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+            LocalizationService.translate(context, 'app_name'),
+            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Colors.white),
           ),
           Text(
-            "Güvenilir Yatırımın Adresi",
-            style: TextStyle(color: Colors.white70, fontSize: 16),
+            LocalizationService.translate(context, 'reliable_market'),
+            style: const TextStyle(color: Colors.white70, fontSize: 16),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildServices() {
+  Widget _buildServices(BuildContext context) {
     final services = [
-      {"icon": Icons.compare_arrows_rounded, "label": "Döviz Takas"},
-      {"icon": Icons.auto_graph_rounded, "label": "Altın Analiz"},
-      {"icon": Icons.public_rounded, "label": "Global Kur"},
+      {"icon": Icons.compare_arrows_rounded, "label": LocalizationService.translate(context, 'gold_swap')},
+      {"icon": Icons.auto_graph_rounded, "label": LocalizationService.translate(context, 'gold_analysis')},
+      {"icon": Icons.public_rounded, "label": LocalizationService.translate(context, 'global_rate')},
     ];
 
     return Row(
@@ -170,7 +171,7 @@ class ContactScreen extends StatelessWidget {
           child: Icon(icon, color: Colors.amber.shade800),
         ),
         const SizedBox(height: 8),
-        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
       ],
     );
   }
@@ -224,7 +225,7 @@ class _ContactItem extends StatelessWidget {
         ),
         title: Text(
           title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         subtitle: Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
         trailing: const Icon(Icons.chevron_right_rounded, color: Colors.grey),
